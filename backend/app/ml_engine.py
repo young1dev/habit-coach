@@ -19,15 +19,10 @@ def prepare_features(features: dict):
     df = pd.DataFrame([features])
 
     df["Date"] = pd.to_datetime(df["Date"])
-
-    df["Is_Weekend"] = (
-        df["Date"]
-        .dt.dayofweek
-        .apply(lambda x: 1 if x >= 5 else 0)
-    )
-
-    df.drop(columns=["Date"], inplace=True)
-
+    is_weekend = df["Date"].dt.dayofweek >= 5
+    df.insert(0, "Is_Weekend", is_weekend.astype(int))
+    df = df.drop(columns=["Date"])
+    
     return df
 
 def predict(features: dict, model_name: str = "default"):

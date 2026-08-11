@@ -35,6 +35,8 @@ export interface CoachAdvice {
 }
 
 export interface PredictionResponse {
+  logId: string;
+  predictionId: string;
   probability: number;
   prediction: number;
   coach: CoachAdvice;
@@ -58,7 +60,7 @@ export interface HistoryEntry {
   habitId: string;
   habitName: string;
   prediction: number;
-  completed: boolean;
+  completed: boolean | null;
   streak: number;
 }
 

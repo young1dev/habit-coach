@@ -81,7 +81,7 @@ function StatisticsPage() {
       <SectionHeader
         eyebrow="Insights"
         title="Statistics"
-        description="How your behaviour and the model have tracked each other over time."
+        description="How your behaviour and the model have tracked each other over time. Aggregated across all your habits."
       />
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

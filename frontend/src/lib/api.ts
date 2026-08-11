@@ -12,15 +12,19 @@ import type {
  * transport can be swapped for `fetch(`${API_BASE_URL}${path}`)` with no
  * changes to the UI or the React Query hooks.
  */
-export const API_BASE_URL = "/api/v1";
-
+export const API_BASE_URL = "http://127.0.0.1:8000/api/v1";
 export const ENDPOINTS = {
   habits: `${API_BASE_URL}/habits`,
   predict: `${API_BASE_URL}/predict`,
-  logOutcome: `${API_BASE_URL}/log-outcome`,
-  history: `${API_BASE_URL}/history`,
+  logOutcome: `${API_BASE_URL}/habitlogs`,
+  history: `${API_BASE_URL}/habitlogs`,
   stats: `${API_BASE_URL}/stats`,
 } as const;
+
+const getDeviceId = () => {
+  if (typeof window === "undefined") return "device_123";
+  return window.localStorage.getItem("deviceId") || "device_123";
+};
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -81,170 +85,145 @@ let history: HistoryEntry[] = Array.from({ length: 42 }, (_, i) => {
 });
 
 export async function getHabits(): Promise<Habit[]> {
-  await delay(400);
-  return [...habits];
+  const deviceId = getDeviceId();
+  const data = await fetch(`${ENDPOINTS.habits}/${deviceId}`);
+
+  if (!data.ok) throw new Error("Failed to fetch habits");
+
+  const res = await data.json();
+  return res as Habit[];
 }
 
 export async function createHabit(input: {
   name: string;
   archetype: Archetype;
 }): Promise<Habit> {
-  await delay(500);
-  const habit: Habit = {
-    id: `h_${Math.random().toString(36).slice(2, 8)}`,
-    name: input.name,
+  const deviceId = getDeviceId();
+  const payload = {
+    device_id: deviceId,
+    habit_name: input.name,
     archetype: input.archetype,
-    streak: 0,
-    lastPrediction: 0,
-    completionRate: 0,
-    createdAt: iso(0),
   };
-  habits = [habit, ...habits];
-  return habit;
+  const response = await fetch(ENDPOINTS.habits, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to create habit");
+  }
+
+  const data = await response.json();
+  return data as Habit;
 }
 
 export async function updateHabit(
   id: string,
   input: { name: string; archetype: Archetype },
 ): Promise<Habit> {
-  await delay(400);
-  habits = habits.map((h) => (h.id === id ? { ...h, ...input } : h));
-  const updated = habits.find((h) => h.id === id);
-  if (!updated) throw new Error("Habit not found");
-  return updated;
+  const payload = {
+    habit_id: id,
+    habit_name: input.name,
+    archetype: input.archetype,
+  }
+  console.log("Here", JSON.stringify(payload))
+
+  const response = await fetch(`${ENDPOINTS.habits}/${id}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    throw new Error("Failed to update habit");
+  }
+  const data = await response.json();
+  return data as Habit;
 }
 
 export async function deleteHabit(id: string): Promise<{ id: string }> {
-  await delay(400);
-  habits = habits.filter((h) => h.id !== id);
-  history = history.filter((h) => h.habitId !== id);
-  return { id };
+  const response = await fetch(`${ENDPOINTS.habits}/${id}`, {
+    method: "DELETE",
+  });
+  if (!response.ok) {
+    throw new Error("Failed to delete habit");
+  }
+  const data = await response.json();
+  return data as { id: string };
 }
 
 export async function predict(metrics: CheckinMetrics): Promise<PredictionResponse> {
-  await delay(1400);
-
-  const score =
-    0.12 * Math.min(metrics.sleepHours / 8, 1) * 3 +
-    0.1 * (metrics.moodScore / 10) * 2 +
-    0.1 * (metrics.energyLevel / 3) * 2 +
-    0.05 * (metrics.mealsEaten / 3) +
-    0.18 * (1 - Math.min(metrics.workloadHours / 12, 1)) +
-    0.12 * (1 - Math.min(metrics.habitDurationMinutes / 180, 1)) +
-    0.1 * (1 - Math.min(metrics.interruptions / 15, 1)) +
-    (metrics.medication ? 0.04 : 0);
-
-  const probability = Math.max(0.05, Math.min(0.97, Number(score.toFixed(2))));
-
-  const risks: string[] = [];
-  if (metrics.workloadHours >= 8) risks.push("Heavy workload competing for focus");
-  if (metrics.habitDurationMinutes >= 75) risks.push("Long habit duration raises drop-off risk");
-  if (metrics.sleepHours < 6.5) risks.push("Sleep debt is lowering your follow-through");
-  if (metrics.interruptions >= 8) risks.push("High interruption count in your environment");
-  if (metrics.moodScore <= 4) risks.push("Low mood reduces initiation energy");
-  if (risks.length === 0) risks.push("No significant risks detected for today");
-
-  const recommendations: string[] = [
-    metrics.workloadHours >= 8
-      ? "Complete your habit before lunch, ahead of the workload peak."
-      : "Anchor the habit right after an existing routine to lock the cue.",
-    metrics.habitDurationMinutes > 45
-      ? `Reduce today's session to ${Math.max(15, Math.round(metrics.habitDurationMinutes / 2))} minutes.`
-      : "Keep the session short and repeatable — consistency beats volume.",
-    metrics.interruptions >= 6
-      ? "Silence notifications and claim one protected block."
-      : "Prepare your setup tonight so tomorrow starts with zero friction.",
-  ];
-
-  const summary =
-    probability >= 0.75
-      ? "Today looks promising — your sleep and workload are balanced, and your recent streak is carrying momentum."
-      : probability >= 0.5
-        ? "Today is workable but fragile. A few inputs are pulling against you, so shrink the target and protect your window."
-        : "Today is a high-risk day. Aim for a minimum viable version of the habit to keep the streak alive.";
-
-  return {
-    probability,
-    prediction: probability >= 0.5 ? 1 : 0,
-    coach: {
-      summary,
-      risks,
-      recommendations,
-      motivation:
-        probability >= 0.75
-          ? "Protecting today's streak makes tomorrow easier. Show up and bank the win."
-          : "A small rep still counts. Two minutes today beats a perfect plan tomorrow.",
-    },
+  const payload = {
+    habit_id: metrics.habitId,
+    sleep_hours: metrics.sleepHours,
+    mood_score: metrics.moodScore,
+    energy_level: metrics.energyLevel,
+    meals_eaten: metrics.mealsEaten,
+    workload_hours: metrics.workloadHours,
+    habit_duration_minutes: metrics.habitDurationMinutes,
+    interruptions: metrics.interruptions,
+    medication: metrics.medication,
   };
+  const response = await fetch(ENDPOINTS.predict, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to generate prediction");
+  }
+
+  const data = await response.json();
+
+  return data as PredictionResponse;
 }
 
 export async function logOutcome(input: {
-  habitId: string;
+  logId: string;
   completed: boolean;
-  prediction: number;
-}): Promise<HistoryEntry> {
-  await delay(400);
-  const habit = habits.find((h) => h.id === input.habitId);
-  const entry: HistoryEntry = {
-    id: `log_${Math.random().toString(36).slice(2, 8)}`,
-    date: iso(0),
-    habitId: input.habitId,
-    habitName: habit?.name ?? "Habit",
-    prediction: input.prediction,
+}): Promise<{ completed: boolean | null }> {
+  const payload = {
     completed: input.completed,
-    streak: (habit?.streak ?? 0) + (input.completed ? 1 : 0),
   };
-  history = [entry, ...history];
-  if (habit) {
-    habits = habits.map((h) =>
-      h.id === habit.id
-        ? {
-            ...h,
-            streak: input.completed ? h.streak + 1 : 0,
-            lastPrediction: input.prediction,
-          }
-        : h,
-    );
+  const res = await fetch(`${ENDPOINTS.logOutcome}/${input.logId}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to log outcome");
   }
-  return entry;
+
+  const data = await res.json();
+  return data as { completed: boolean | null };
 }
 
 export async function getHistory(): Promise<HistoryEntry[]> {
-  await delay(500);
-  return [...history];
+  const deviceId = getDeviceId();
+  const data = await fetch(`${ENDPOINTS.history}/history/${deviceId}`);
+
+  if (!data.ok) throw new Error("Failed to fetch history");
+  const history = await data.json();
+  return history as HistoryEntry[];
 }
 
 export async function getStats(): Promise<StatsResponse> {
-  await delay(600);
-  return {
-    weeklyCompletionRate: 0.86,
-    monthlyCompletionRate: 0.79,
-    currentStreak: 14,
-    longestStreak: 31,
-    averageSleep: 7.2,
-    averageWorkload: 6.4,
-    predictionAccuracy: 0.88,
-    daily: Array.from({ length: 14 }, (_, i) => {
-      const p = 0.52 + (((i * 17) % 40) / 100);
-      return {
-        date: iso(13 - i),
-        probability: Number(Math.min(0.96, p).toFixed(2)),
-        completed: p > 0.6 ? 1 : 0,
-      };
-    }),
-    weekly: [
-      { week: "W1", rate: 0.62 },
-      { week: "W2", rate: 0.71 },
-      { week: "W3", rate: 0.68 },
-      { week: "W4", rate: 0.81 },
-      { week: "W5", rate: 0.86 },
-      { week: "W6", rate: 0.91 },
-    ],
-    archetypeSplit: [
-      { name: "Deep Worker", value: 38 },
-      { name: "Student", value: 27 },
-      { name: "Early Bird", value: 21 },
-      { name: "Recovery", value: 14 },
-    ],
-  };
+  const deviceId = getDeviceId();
+  const response = await fetch(`${ENDPOINTS.stats}/${deviceId}`);
+  if (!response.ok) {
+    throw new Error("Failed to fetch stats");
+  }
+
+  const data = await response.json();
+  return data as StatsResponse;
 }

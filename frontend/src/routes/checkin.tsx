@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import {
   Activity,
@@ -80,6 +80,18 @@ function CheckinPage() {
 
   const [habitId, setHabitId] = useState<string>(habitParam);
   const [metrics, setMetrics] = useState(DEFAULTS);
+
+  useEffect(() => {
+    if (habitParam) {
+      setHabitId(habitParam);
+    }
+  }, [habitParam]);
+
+  useEffect(() => {
+    if (habitParam) {
+      setHabitId(habitParam);
+    }
+  }, [habitParam]);
 
   const selectedId = habitId || habits.data?.[0]?.id || "";
   const selectedHabit = habits.data?.find((h) => h.id === selectedId);
@@ -286,13 +298,12 @@ function CheckinPage() {
               <Button
                 variant="secondary"
                 className="rounded-full"
-                disabled={logOutcome.isPending}
+                disabled={logOutcome.isPending || !result?.logId}
                 onClick={() =>
-                  selectedId &&
+                  result?.logId &&
                   logOutcome.mutate({
-                    habitId: selectedId,
+                    logId: result.logId,
                     completed: true,
-                    prediction: result.probability,
                   })
                 }
               >
@@ -301,13 +312,12 @@ function CheckinPage() {
               <Button
                 variant="ghost"
                 className="rounded-full"
-                disabled={logOutcome.isPending}
+                disabled={logOutcome.isPending || !result?.logId}
                 onClick={() =>
-                  selectedId &&
+                  result?.logId &&
                   logOutcome.mutate({
-                    habitId: selectedId,
+                    logId: result.logId,
                     completed: false,
-                    prediction: result.probability,
                   })
                 }
               >

@@ -1,11 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { History as HistoryIcon } from "lucide-react";
+import { History as HistoryIcon, CheckCircle2, XCircle } from "lucide-react";
 
 import { PageContainer } from "@/components/layout/PageContainer";
 import { SectionHeader } from "@/components/layout/SectionHeader";
 import { EmptyState } from "@/components/common/EmptyState";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
@@ -22,7 +23,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useHabits, useHistory } from "@/lib/queries";
+import { useHabits, useHistory, useLogOutcome } from "@/lib/queries";
+import { ConfirmationDialog } from "@/components/common/ConfirmationDialog";
 
 export const Route = createFileRoute("/history")({
   head: () => ({
@@ -45,20 +47,24 @@ export const Route = createFileRoute("/history")({
 function HistoryPage() {
   const history = useHistory();
   const habits = useHabits();
+  const logOutcome = useLogOutcome();
 
   const [habitFilter, setHabitFilter] = useState("all");
   const [completionFilter, setCompletionFilter] = useState("all");
   const [dateFilter, setDateFilter] = useState("");
 
+  const historyEntries = history.data ?? [];
+  const [pendingMiss, setPendingMiss] = useState<string | null>(null);
+
   const rows = useMemo(() => {
-    return (history.data ?? []).filter((entry) => {
+    return historyEntries.filter((entry) => {
       if (habitFilter !== "all" && entry.habitId !== habitFilter) return false;
-      if (completionFilter === "completed" && !entry.completed) return false;
-      if (completionFilter === "missed" && entry.completed) return false;
-      if (dateFilter && entry.date !== dateFilter) return false;
+      if (completionFilter === "completed" && entry.completed !== true) return false;
+      if (completionFilter === "missed" && entry.completed !== false) return false;
+      if (dateFilter && entry.date.slice(0, 10) !== dateFilter) return false;
       return true;
     });
-  }, [history.data, habitFilter, completionFilter, dateFilter]);
+  }, [historyEntries, habitFilter, completionFilter, dateFilter]);
 
   return (
     <PageContainer>
@@ -113,6 +119,7 @@ function HistoryPage() {
                   <TableHead>Habit</TableHead>
                   <TableHead className="text-right">Prediction</TableHead>
                   <TableHead>Completed</TableHead>
+                  <TableHead>Action</TableHead>
                   <TableHead className="text-right">Streak</TableHead>
                 </TableRow>
               </TableHeader>
@@ -131,13 +138,45 @@ function HistoryPage() {
                     <TableCell>
                       <span
                         className={
-                          entry.completed
+                          entry.completed === true
                             ? "rounded-full bg-success-soft px-2.5 py-1 text-[11px] font-semibold text-success"
-                            : "rounded-full bg-danger-soft px-2.5 py-1 text-[11px] font-semibold text-danger"
+                            : entry.completed === false
+                            ? "rounded-full bg-danger-soft px-2.5 py-1 text-[11px] font-semibold text-danger"
+                            : "rounded-full bg-muted px-2.5 py-1 text-[11px] font-semibold text-foreground"
                         }
                       >
-                        {entry.completed ? "Yes" : "No"}
+                        {entry.completed === true
+                          ? "Yes"
+                          : entry.completed === false
+                          ? "No"
+                          : "Pending"}
                       </span>
+                    </TableCell>
+                    <TableCell>
+                      {entry.completed === null ? (
+                        <div className="flex gap-2">
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            className="rounded-full"
+                            onClick={() => {
+                              if (entry.id) {
+                                logOutcome.mutate({ logId: entry.id, completed: true });
+                              }
+                            }}
+                          >
+                            <CheckCircle2 className="mr-1.5 h-4 w-4 text-success" /> Completed
+                          </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="rounded-full"
+                                onClick={() => setPendingMiss(entry.id)}
+                              >
+                                <XCircle className="mr-1.5 h-4 w-4 text-danger" /> Missed
+                              </Button>
+                        </div>
+                      ) : null}
                     </TableCell>
                     <TableCell className="text-right text-sm tabular-nums">
                       {entry.streak}d
@@ -155,6 +194,23 @@ function HistoryPage() {
           />
         )}
       </div>
+      <ConfirmationDialog
+        open={Boolean(pendingMiss)}
+        onOpenChange={(open) => !open && setPendingMiss(null)}
+        title="Mark as missed?"
+        description="This will record the outcome as missed. This action cannot be undone."
+        confirmLabel="Mark missed"
+        destructive
+        onConfirm={() => {
+          if (pendingMiss) {
+            logOutcome.mutate({ logId: pendingMiss, completed: false });
+          }
+          setPendingMiss(null);
+        }}
+      />
     </PageContainer>
   );
 }
+
+  
+  

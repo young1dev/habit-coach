@@ -43,7 +43,9 @@ function DashboardPage() {
   const stats = useStats();
 
   const activeHabit = habits.data?.[0];
-  const probability = activeHabit?.lastPrediction ?? 0;
+  const latestHistoryEntry = history.data?.[0];
+  const probability = latestHistoryEntry?.prediction ?? activeHabit?.lastPrediction ?? 0;
+  const activeHabitName = latestHistoryEntry?.habitName ?? activeHabit?.name ?? "—";
 
   return (
     <PageContainer>
@@ -80,7 +82,7 @@ function DashboardPage() {
               </div>
               <p className="mt-6 text-center text-sm text-muted-foreground">
                 Based on your latest check-in for{" "}
-                <span className="font-semibold text-foreground">{activeHabit?.name ?? "—"}</span>
+                <span className="font-semibold text-foreground">{activeHabitName}</span>
               </p>
             </>
           )}
@@ -178,12 +180,18 @@ function DashboardPage() {
                     </span>
                     <span
                       className={
-                        entry.completed
+                        entry.completed === true
                           ? "rounded-full bg-success-soft px-2.5 py-1 text-[11px] font-semibold text-success"
-                          : "rounded-full bg-danger-soft px-2.5 py-1 text-[11px] font-semibold text-danger"
+                          : entry.completed === false
+                          ? "rounded-full bg-danger-soft px-2.5 py-1 text-[11px] font-semibold text-danger"
+                          : "rounded-full bg-muted px-2.5 py-1 text-[11px] font-semibold text-foreground"
                       }
                     >
-                      {entry.completed ? "Completed" : "Missed"}
+                      {entry.completed === true
+                        ? "Completed"
+                        : entry.completed === false
+                        ? "Missed"
+                        : "Pending"}
                     </span>
                   </div>
                 </motion.div>

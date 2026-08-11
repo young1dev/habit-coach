@@ -8,6 +8,11 @@ __pycache__/
 # Environment variables
 .env
 
+*.pyc
+*.db
+*.sqlite
+*.sqlite3
+
 # Database
 data/*.db
 
