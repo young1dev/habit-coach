@@ -2,6 +2,18 @@ from pydantic import BaseModel
 from datetime import datetime
 
 
+class RegisterRequest(BaseModel):
+    username: str
+    email: str
+    password: str
+
+
+class RegisterResponse(BaseModel):
+    user_id: str
+    username: str
+    email: str
+    device_id: str
+
 class HabitCreate(BaseModel):
     device_id: str
     habit_name: str

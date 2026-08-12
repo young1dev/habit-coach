@@ -4,6 +4,15 @@ from sqlalchemy.sql import func
 from app.database import Base
 
 
+class User(Base):
+    __tablename__ = "users"
+
+    user_id = Column(String, primary_key=True)
+    email=Column(String, unique=True, nullable=False)
+    username = Column(String, unique=True, nullable=False, index=True)
+    password_hash= Column(String, nullable=False)
+    device_id= Column(String, unique=True, nullable=False)
+
 class Habit(Base):
     __tablename__ = "habits"
 

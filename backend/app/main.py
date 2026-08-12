@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from app.database import engine
 from app.models import Base
-from app.routes import habits, prediction, habitlog, stats
+from app.routes import habits, prediction, habitlog, stats, auth
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -18,6 +18,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.include_router(auth.router)
 app.include_router(habits.router)
 app.include_router(prediction.router)
 app.include_router(habitlog.router)
