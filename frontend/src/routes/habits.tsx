@@ -33,7 +33,6 @@ export const Route = createFileRoute("/habits")({
 
 function HabitsPage() {
   const habits = useHabits();
-  console.log(habits)
   const createHabit = useCreateHabit();
   const updateHabit = useUpdateHabit();
   const deleteHabit = useDeleteHabit();
