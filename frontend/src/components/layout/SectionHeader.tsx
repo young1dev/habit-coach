@@ -27,7 +27,7 @@ export function SectionHeader({
             {eyebrow}
           </p>
         )}
-        <h1 className="mt-1 truncate text-2xl font-bold sm:text-3xl">{title}</h1>
+        <h1 className="mt-1 text-2xl font-bold sm:text-3xl">{title}</h1>
         {description && (
           <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{description}</p>
         )}

@@ -14,8 +14,19 @@ class RegisterResponse(BaseModel):
     email: str
     device_id: str
 
-class HabitCreate(BaseModel):
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+
+class LoginResponse(BaseModel):
+    access_token: str
+    token_type: str
+    user_id: str
+    username: str
     device_id: str
+
+class HabitCreate(BaseModel):
     habit_name: str
     archetype: str
 
@@ -97,8 +108,6 @@ class HabitLogHistoryResponse(BaseModel):
 
 class PendingHabitLogRequest(BaseModel):
     habit_id: str
-    device_id: str
-
 
 class StatsDailyItem(BaseModel):
     date: str

@@ -17,6 +17,7 @@ import { PredictionGauge, RiskBadge } from "@/components/common/PredictionGauge"
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useHabits, useHistory, useStats } from "@/lib/queries";
+import { AUTH_KEY } from "@/lib/auth";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -37,6 +38,21 @@ export const Route = createFileRoute("/")({
   component: DashboardPage,
 });
 
+export function getUsername(): string | null {
+  const auth = localStorage.getItem(AUTH_KEY);
+
+  if (!auth) return null;
+
+  try {
+    const data = JSON.parse(auth);
+    return data.username ?? null;
+  } catch {
+    return null;
+  }
+}
+
+const username = getUsername()
+
 function DashboardPage() {
   const habits = useHabits();
   const history = useHistory();
@@ -51,7 +67,7 @@ function DashboardPage() {
     <PageContainer>
       <SectionHeader
         eyebrow="Good to see you"
-        title="Welcome back, Zico"
+        title={`Welcome back, ${username}`}
         description="Your habit intelligence for today, built from sleep, workload, mood and momentum."
         action={
           <Button asChild className="rounded-full">

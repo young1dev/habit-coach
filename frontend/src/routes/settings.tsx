@@ -1,12 +1,15 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Download, Info, Laptop, Moon, Smartphone, Sun, Upload } from "lucide-react";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
+
 
 import { PageContainer } from "@/components/layout/PageContainer";
 import { SectionHeader } from "@/components/layout/SectionHeader";
 import { ConfirmationDialog } from "@/components/common/ConfirmationDialog";
 import { Button } from "@/components/ui/button";
 import { useTheme, type ThemeMode } from "@/lib/theme";
+import { clearAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 
@@ -53,6 +56,14 @@ function Panel({
 }
 
 function SettingsPage() {
+  const queryClient = useQueryClient();
+
+const handleLogout = () => {
+  clearAuth();
+  queryClient.clear();
+  navigate({ to: "/auth", replace: true });
+};
+  const navigate = useNavigate();
   const { mode, setMode } = useTheme();
   const [importOpen, setImportOpen] = useState(false);
 
@@ -151,6 +162,18 @@ function SettingsPage() {
         </Panel>
       </div>
 
+      <Button
+        variant="destructive"
+        className="rounded-full"
+        onClick={() => {
+          clearAuth();
+          queryClient.clear();
+          navigate({ to: "/auth", replace: true });
+        }}
+      >
+        Log Out
+      </Button>
+
       <ConfirmationDialog
         open={importOpen}
         onOpenChange={setImportOpen}
@@ -159,6 +182,7 @@ function SettingsPage() {
         confirmLabel="Import and replace"
         onConfirm={() => toast.success("Import complete — 42 logs restored.")}
       />
+
     </PageContainer>
   );
 }

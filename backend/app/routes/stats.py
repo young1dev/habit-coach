@@ -5,7 +5,8 @@ from datetime import date, timedelta
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.models import Habit, HabitLog, PredictionLog
+from app.auth_dependencies import get_current_user
+from app.models import Habit, HabitLog, PredictionLog, User
 from app.schemas import StatsResponse
 
 router = APIRouter(prefix="/api/v1/stats", tags=["Stats"])
@@ -64,14 +65,14 @@ def normalize_prediction(prediction: float) -> int:
     return 1 if prediction >= 0.5 else 0
 
 
-@router.get("/{device_id}", response_model=StatsResponse)
-def get_stats(device_id: str, db: Session = Depends(get_db)):
+@router.get("/", response_model=StatsResponse)
+def get_stats(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     today = date.today()
     logs = (
         db.query(HabitLog, Habit, PredictionLog)
         .join(Habit, Habit.habit_id == HabitLog.habit_id)
         .join(PredictionLog, PredictionLog.prediction_id == HabitLog.prediction_log_id)
-        .filter(Habit.device_id == device_id)
+        .filter(Habit.device_id == current_user.device_id)
         .order_by(HabitLog.date.desc())
         .all()
     )

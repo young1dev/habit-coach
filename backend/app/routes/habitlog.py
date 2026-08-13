@@ -1,7 +1,8 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.models import Habit, HabitLog, PredictionLog
+from app.models import Habit, HabitLog, PredictionLog, User
+from app.auth_dependencies import get_current_user
 from app.schemas import (
     HabitLogHistoryItem,
     HabitLogUpdateRequest,
@@ -19,15 +20,38 @@ router = APIRouter(
 def update_log(
     log_id: str,
     request: HabitLogUpdateRequest,
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    log = db.query(HabitLog).filter(HabitLog.log_id == log_id).first()
+    log = (
+        db.query(HabitLog)
+        .filter(HabitLog.log_id == log_id)
+        .first()
+    )
+
     if log is None:
-        raise HTTPException(status_code=404, detail="Habit log not found")
+        raise HTTPException(
+            status_code=404,
+            detail="Habit log not found",
+        )
+
+    habit = (
+        db.query(Habit)
+        .filter(
+            Habit.habit_id == log.habit_id,
+            Habit.device_id == current_user.device_id,
+        )
+        .first()
+    )
+
+    if habit is None:
+        raise HTTPException(
+            status_code=403,
+            detail="You do not have access to this habit",
+        )
 
     log.completed = request.completed
-
-    # After updating completion, recompute streaks for this habit
+    
     def recompute_streaks(habit_id: str):
         habit_logs = (
             db.query(HabitLog)
@@ -35,7 +59,9 @@ def update_log(
             .order_by(HabitLog.date.asc())
             .all()
         )
+
         current = 0
+
         for hl in habit_logs:
             if hl.completed is True:
                 current += 1
@@ -44,7 +70,6 @@ def update_log(
                 current = 0
                 hl.streak = 0
             else:
-                # pending: keep the streak as the current run (not incremented)
                 hl.streak = current
 
     recompute_streaks(log.habit_id)
@@ -53,14 +78,14 @@ def update_log(
     db.refresh(log)
 
     return log
-
-
+    
+    
 @router.get(
-    "/history/{device_id}",
+    "/history/",
     response_model=list[HabitLogHistoryItem],
 )
 def get_history(
-    device_id: str,
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     logs = (
@@ -70,7 +95,7 @@ def get_history(
             PredictionLog,
             PredictionLog.prediction_id == HabitLog.prediction_log_id,
         )
-        .filter(Habit.device_id == device_id)
+        .filter(Habit.device_id == current_user.device_id)
         .order_by(HabitLog.date.desc())
         .all()
     )
@@ -93,13 +118,13 @@ def get_history(
     return history
 
 
-@router.get("/pending/{device_id}", response_model=list[HabitLogHistoryItem])
+@router.get("/pending/", response_model=list[HabitLogHistoryItem])
 def get_pending_logs(
-    device_id: str, request: PendingHabitLogRequest, db: Session = Depends(get_db)
+    request: PendingHabitLogRequest, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)
 ):
     habit = (
         db.query(Habit)
-        .filter(Habit.habit_id == request.habit_id, Habit.device_id == device_id)
+        .filter(Habit.habit_id == request.habit_id, Habit.device_id == current_user.device_id)
         .first()
     )
     if habit is None:
@@ -110,7 +135,7 @@ def get_pending_logs(
         .join(Habit, Habit.habit_id == HabitLog.habit_id)
         .join(PredictionLog, PredictionLog.prediction_id == HabitLog.prediction_log_id)
         .filter(
-            Habit.device_id == device_id,
+            Habit.device_id == current_user.device_id,
             HabitLog.habit_id == request.habit_id,
             HabitLog.completed.is_(None),
         )

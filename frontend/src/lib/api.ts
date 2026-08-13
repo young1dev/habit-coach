@@ -5,7 +5,13 @@ import type {
   HistoryEntry,
   PredictionResponse,
   StatsResponse,
+  RegisterRequest,
+  RegisterResponse,
+  LoginRequest,
+  LoginResponse
 } from "./types";
+
+import { getToken } from "./auth";
 
 /**
  * Mock API layer. Every function mirrors a future FastAPI endpoint so the
@@ -14,6 +20,8 @@ import type {
  */
 export const API_BASE_URL = "http://127.0.0.1:8000/api/v1";
 export const ENDPOINTS = {
+  register: `${API_BASE_URL}/auth/register`,
+  login: `${API_BASE_URL}/auth/login`, 
   habits: `${API_BASE_URL}/habits`,
   predict: `${API_BASE_URL}/predict`,
   logOutcome: `${API_BASE_URL}/habitlogs`,
@@ -21,72 +29,69 @@ export const ENDPOINTS = {
   stats: `${API_BASE_URL}/stats`,
 } as const;
 
+
+export async function registerUser(
+  data: RegisterRequest
+): Promise<RegisterResponse> {
+  const response = await fetch(
+    `${ENDPOINTS.register}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    }
+  );
+
+  if (!response.ok) {
+    const error = await response.json();
+
+    throw new Error(error.detail || "Registration failed");
+  }
+
+  return response.json();
+}
+
+export async function loginUser(
+  data: LoginRequest
+): Promise<LoginResponse> {
+  const response = await fetch(
+    `${ENDPOINTS.login}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    }
+  );
+
+  if (!response.ok) {
+    const error = await response.json();
+
+    throw new Error(error.detail || "Login failed");
+  }
+
+  return response.json();
+}
+
 const getDeviceId = () => {
   if (typeof window === "undefined") return "device_123";
   return window.localStorage.getItem("deviceId") || "device_123";
 };
 
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const iso = (daysAgo: number) =>
-  new Date(Date.now() - daysAgo * 86_400_000).toISOString().slice(0, 10);
-
-let habits: Habit[] = [
-  {
-    id: "h_1",
-    name: "Deep work — 90 minutes",
-    archetype: "Deep Worker",
-    streak: 14,
-    lastPrediction: 0.82,
-    completionRate: 0.86,
-    createdAt: iso(64),
-  },
-  {
-    id: "h_2",
-    name: "Morning run",
-    archetype: "Early Bird",
-    streak: 6,
-    lastPrediction: 0.64,
-    completionRate: 0.71,
-    createdAt: iso(41),
-  },
-  {
-    id: "h_3",
-    name: "Read 20 pages",
-    archetype: "Student",
-    streak: 23,
-    lastPrediction: 0.91,
-    completionRate: 0.93,
-    createdAt: iso(120),
-  },
-  {
-    id: "h_4",
-    name: "Evening stretch & recovery",
-    archetype: "Recovery",
-    streak: 2,
-    lastPrediction: 0.47,
-    completionRate: 0.52,
-    createdAt: iso(17),
-  },
-];
-
-let history: HistoryEntry[] = Array.from({ length: 42 }, (_, i) => {
-  const habit = habits[i % habits.length]!;
-  const prediction = 0.4 + ((i * 37) % 55) / 100;
-  return {
-    id: `log_${i}`,
-    date: iso(i),
-    habitId: habit.id,
-    habitName: habit.name,
-    prediction: Math.min(0.98, Number(prediction.toFixed(2))),
-    completed: prediction > 0.55,
-    streak: Math.max(0, habit.streak - Math.floor(i / 2)),
-  };
-});
+const token = getToken()
 
 export async function getHabits(): Promise<Habit[]> {
   const deviceId = getDeviceId();
-  const data = await fetch(`${ENDPOINTS.habits}/${deviceId}`);
+  const data = await fetch(`${ENDPOINTS.habits}/`, {
+    method: `GET`,
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
 
   if (!data.ok) throw new Error("Failed to fetch habits");
 
@@ -106,7 +111,9 @@ export async function createHabit(input: {
   };
   const response = await fetch(ENDPOINTS.habits, {
     method: "POST",
+
     headers: {
+      "Authorization": `Bearer ${token}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify(payload),
@@ -134,6 +141,7 @@ export async function updateHabit(
   const response = await fetch(`${ENDPOINTS.habits}/${id}`, {
     method: "PATCH",
     headers: {
+      "Authentication": `Bearer ${token}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify(payload),
@@ -171,6 +179,7 @@ export async function predict(metrics: CheckinMetrics): Promise<PredictionRespon
   const response = await fetch(ENDPOINTS.predict, {
     method: "POST",
     headers: {
+      "Authorization": `Bearer ${token}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify(payload),
@@ -195,6 +204,7 @@ export async function logOutcome(input: {
   const res = await fetch(`${ENDPOINTS.logOutcome}/${input.logId}`, {
     method: "PATCH",
     headers: {
+      "Authorization": `Bearer ${token}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify(payload),
@@ -210,7 +220,13 @@ export async function logOutcome(input: {
 
 export async function getHistory(): Promise<HistoryEntry[]> {
   const deviceId = getDeviceId();
-  const data = await fetch(`${ENDPOINTS.history}/history/${deviceId}`);
+  const data = await fetch(`${ENDPOINTS.history}/history/`, {
+    method: 'GET',
+    headers: {
+      "Authorization": `Bearer ${token}`,
+      "Content-Type": "application/json",
+    }
+  });
 
   if (!data.ok) throw new Error("Failed to fetch history");
   const history = await data.json();
@@ -219,7 +235,13 @@ export async function getHistory(): Promise<HistoryEntry[]> {
 
 export async function getStats(): Promise<StatsResponse> {
   const deviceId = getDeviceId();
-  const response = await fetch(`${ENDPOINTS.stats}/${deviceId}`);
+  const response = await fetch(`${ENDPOINTS.stats}/`, {
+    method: 'GET',
+    headers: {
+      "Authorization": `Bearer ${token}`,
+      "Content-Type": "application/json",
+    }
+  });
   if (!response.ok) {
     throw new Error("Failed to fetch stats");
   }

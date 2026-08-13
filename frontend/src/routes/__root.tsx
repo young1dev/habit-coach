@@ -3,6 +3,7 @@ import {
   Outlet,
   createRootRouteWithContext,
   useRouter,
+  useLocation,
   HeadContent,
   Scripts,
   Link,
@@ -13,6 +14,7 @@ import appCss from "../styles.css?url";
 import { AppShell } from "@/components/layout/AppShell";
 import { ThemeProvider } from "@/lib/theme";
 import { Toaster } from "@/components/ui/sonner";
+import { AuthGuard } from "@/components/auth/AuthGuard";
 
 function NotFoundComponent() {
   return (
@@ -124,14 +126,23 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const location = useLocation();
+
+  const isAuthPage = location.pathname === "/auth";
 
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <AppShell>
-          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-          <Outlet />
-        </AppShell>
+        <AuthGuard>
+          {isAuthPage ? (
+            <Outlet />
+          ) : (
+            <AppShell>
+              <Outlet />
+            </AppShell>
+          )}
+        </AuthGuard>
+
         <Toaster position="top-right" />
       </ThemeProvider>
     </QueryClientProvider>

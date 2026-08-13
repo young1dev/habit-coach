@@ -2,8 +2,9 @@ from fastapi import APIRouter, HTTPException, Depends
 import uuid
 from app.database import get_db
 from app.schemas import HabitCreate, HabitCreateResponse, HabitResponse, HabitUpdate
-from app.models import Habit, HabitLog, PredictionLog
+from app.models import Habit, HabitLog, PredictionLog, User
 from sqlalchemy.orm import Session
+from app.auth_dependencies import get_current_user
 from app.routes.prediction import calculate_streak
 
 router = APIRouter(
@@ -34,10 +35,11 @@ def habit_to_response(habit: Habit, db: Session) -> dict:
 
 
 @router.post("/", response_model=HabitCreateResponse)
-def create_habit(habit: HabitCreate, db: Session = Depends(get_db)):
+def create_habit(habit: HabitCreate, current_user: User = Depends(get_current_user),
+ db: Session = Depends(get_db)):
     new_habit = Habit(
         habit_id=str(uuid.uuid4()),
-        device_id=habit.device_id,
+        device_id=current_user.device_id,
         habit_name=habit.habit_name,
         archetype=habit.archetype,
     )
@@ -48,9 +50,9 @@ def create_habit(habit: HabitCreate, db: Session = Depends(get_db)):
     return habit_to_response(new_habit, db)
 
 
-@router.get("/{device_id}", response_model=list[HabitResponse])
-def get_habits(device_id: str, db: Session = Depends(get_db)):
-    habits = db.query(Habit).filter(Habit.device_id == device_id).all()
+@router.get("/", response_model=list[HabitResponse])
+def get_habits(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    habits = db.query(Habit).filter(Habit.device_id == current_user.device_id).all()
 
     habit_data = []
 
@@ -82,8 +84,9 @@ def get_habits(device_id: str, db: Session = Depends(get_db)):
 
 
 @router.patch("/{habit_id}", response_model=HabitCreateResponse)
-def update_habit(habit_id: str, habit: HabitUpdate, db: Session = Depends(get_db)):
-    existing_habit = db.query(Habit).filter(Habit.habit_id == habit_id).first()
+def update_habit(habit_id: str, habit: HabitUpdate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    existing_habit = db.query(Habit).filter(Habit.habit_id == habit_id, Habit.device_id == current_user.device_id,
+).first()
     if not existing_habit:
         raise HTTPException(status_code=404, detail="Habit not found")
 
@@ -97,8 +100,9 @@ def update_habit(habit_id: str, habit: HabitUpdate, db: Session = Depends(get_db
 
 
 @router.delete("/{habit_id}")
-def delete_habits(habit_id: str, db: Session = Depends(get_db)):
-    habit = db.query(Habit).filter(Habit.habit_id == habit_id).first()
+def delete_habits(habit_id: str, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    habit = db.query(Habit).filter(Habit.habit_id == habit_id, Habit.device_id == current_user.device_id,
+).first()
     if habit is None:
         raise HTTPException(status_code=404, detail="Habit not found")
     db.delete(habit)

@@ -1,5 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
+
 import { toast } from "sonner";
+import { saveAuth } from "./auth";
 
 import * as api from "./api";
 import type { Archetype } from "./types";
@@ -8,7 +11,46 @@ export const queryKeys = {
   habits: ["habits"] as const,
   history: ["history"] as const,
   stats: ["stats"] as const,
+  login: ["login"] as const,
+  register: ["register"] as const
 };
+
+export function useRegister() {
+  return useMutation({
+    mutationFn: api.registerUser,
+
+    onSuccess: () => {
+      toast.success("Account created successfully!");
+    },
+
+    onError: (error) => {
+      toast.error(error.message || "Registration failed");
+    },
+  });
+}
+
+export function useLogin() {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+
+  return useMutation({
+    mutationFn: api.loginUser,
+
+    onSuccess: (data) => {
+      queryClient.clear();
+
+      saveAuth(data);
+      // console.log(data)
+      toast.success(`Welcome back! ${data.username}`)
+      navigate({ to: "/", replace: true });
+    },
+
+    onError: (error) => {
+      toast.error(error.message || "Login failed");
+    },
+  });
+}
 
 export function useHabits() {
   return useQuery({ queryKey: queryKeys.habits, queryFn: api.getHabits });

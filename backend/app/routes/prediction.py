@@ -2,18 +2,19 @@ from datetime import date as Date, timedelta
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.models import Habit, HabitLog, PredictionLog
+from app.models import Habit, HabitLog, PredictionLog, User
 from app.schemas import CoachResponse, PredictionRequest, PredictionResponse
 from app.ml_engine import predict
 from app.llm_coach import generate_coach_response
+from app.auth_dependencies import get_current_user
 import uuid
 
 router = APIRouter(prefix="/api/v1/predict", tags=["Prediction"])
 
 
 @router.post("/", response_model=PredictionResponse)
-def predict_habit_completion(request: PredictionRequest, db: Session = Depends(get_db)):
-    habit = db.query(Habit).filter(Habit.habit_id == request.habit_id).first()
+def predict_habit_completion(request: PredictionRequest, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    habit = db.query(Habit).filter(Habit.habit_id == request.habit_id, Habit.device_id == current_user.device_id,).first()
     if habit is None:
         raise HTTPException(status_code=404, detail="Habit not found")
 
