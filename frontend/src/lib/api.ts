@@ -18,7 +18,7 @@ import { getToken } from "./auth";
  * transport can be swapped for `fetch(`${API_BASE_URL}${path}`)` with no
  * changes to the UI or the React Query hooks.
  */
-export const API_BASE_URL = "http://127.0.0.1:8000/api/v1";
+export const API_BASE_URL = "https://habit-coach-api.onrender.com/api/v1";
 export const ENDPOINTS = {
   register: `${API_BASE_URL}/auth/register`,
   login: `${API_BASE_URL}/auth/login`, 
@@ -136,8 +136,6 @@ export async function updateHabit(
     habit_name: input.name,
     archetype: input.archetype,
   }
-  console.log("Here", JSON.stringify(payload))
-
   const response = await fetch(`${ENDPOINTS.habits}/${id}`, {
     method: "PATCH",
     headers: {
