@@ -85,11 +85,15 @@ function DashboardPage() {
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
           className="card-surface flex flex-col items-center justify-center p-8 lg:row-span-2"
         >
+
           {habits.isLoading ? (
             <div className="flex flex-col items-center gap-4">
               <Skeleton className="h-50 w-50 rounded-full" />
               <Skeleton className="h-4 w-40" />
             </div>
+          ) : !probability ? (
+            <p className="text-lg font-bold text-muted-foreground">
+              No Prediction Logged for Today</p>
           ) : (
             <>
               <PredictionGauge probability={probability} />
@@ -171,47 +175,47 @@ function DashboardPage() {
         <div className="mt-4 space-y-2">
           {history.isLoading
             ? Array.from({ length: 4 }).map((_, i) => (
-                <Skeleton key={i} className="h-16 w-full rounded-2xl" />
-              ))
+              <Skeleton key={i} className="h-16 w-full rounded-2xl" />
+            ))
             : history.data?.slice(0, 5).map((entry, i) => (
-                <motion.div
-                  key={entry.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.35, delay: i * 0.04 }}
-                  className="card-surface grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-5 py-4"
-                >
-                  <div className="flex min-w-0 items-center gap-3">
-                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-muted text-muted-foreground">
-                      <CalendarCheck className="h-4 w-4" />
-                    </span>
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold">{entry.habitName}</p>
-                      <p className="text-xs text-muted-foreground">{entry.date}</p>
-                    </div>
+              <motion.div
+                key={entry.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35, delay: i * 0.04 }}
+                className="card-surface grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-5 py-4"
+              >
+                <div className="flex min-w-0 items-center gap-3">
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-muted text-muted-foreground">
+                    <CalendarCheck className="h-4 w-4" />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold">{entry.habitName}</p>
+                    <p className="text-xs text-muted-foreground">{entry.date}</p>
                   </div>
-                  <div className="flex shrink-0 items-center gap-3">
-                    <span className="font-display text-sm font-bold tabular-nums">
-                      {Math.round(entry.prediction * 100)}%
-                    </span>
-                    <span
-                      className={
-                        entry.completed === true
-                          ? "rounded-full bg-success-soft px-2.5 py-1 text-[11px] font-semibold text-success"
-                          : entry.completed === false
+                </div>
+                <div className="flex shrink-0 items-center gap-3">
+                  <span className="font-display text-sm font-bold tabular-nums">
+                    {Math.round(entry.prediction * 100)}%
+                  </span>
+                  <span
+                    className={
+                      entry.completed === true
+                        ? "rounded-full bg-success-soft px-2.5 py-1 text-[11px] font-semibold text-success"
+                        : entry.completed === false
                           ? "rounded-full bg-danger-soft px-2.5 py-1 text-[11px] font-semibold text-danger"
                           : "rounded-full bg-muted px-2.5 py-1 text-[11px] font-semibold text-foreground"
-                      }
-                    >
-                      {entry.completed === true
-                        ? "Completed"
-                        : entry.completed === false
+                    }
+                  >
+                    {entry.completed === true
+                      ? "Completed"
+                      : entry.completed === false
                         ? "Missed"
                         : "Pending"}
-                    </span>
-                  </div>
-                </motion.div>
-              ))}
+                  </span>
+                </div>
+              </motion.div>
+            ))}
         </div>
       </section>
     </PageContainer>

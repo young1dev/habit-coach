@@ -75,7 +75,7 @@ def get_habits(current_user: User = Depends(get_current_user), db: Session = Dep
                 "streak": streak,
                 "completionRate": calculate_completion_rate(db, habit.habit_id),
                 "lastPrediction": (
-                    last_prediction.prediction if last_prediction else None
+                    last_prediction.probability if last_prediction else None
                 ),
             }
         )

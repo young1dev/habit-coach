@@ -34,6 +34,7 @@ def get_prompt(
     Habit Name - {habit_name}
     - Completion probability - {probability}
     - Habit current streak, Completed Yesterday,  Today's metrics - {features}
+    - Energy Level is over 3, moodscore/5, 
     - Habit archetype - {archetype}
 
     Rules:

@@ -18,7 +18,7 @@ import { getToken } from "./auth";
  * transport can be swapped for `fetch(`${API_BASE_URL}${path}`)` with no
  * changes to the UI or the React Query hooks.
  */
-export const API_BASE_URL = "https://habit-coach-api.onrender.com/api/v1";
+export const API_BASE_URL = "http://127.0.0.1:8000/api/v1";
 export const ENDPOINTS = {
   register: `${API_BASE_URL}/auth/register`,
   login: `${API_BASE_URL}/auth/login`, 
@@ -76,16 +76,9 @@ export async function loginUser(
   return response.json();
 }
 
-const getDeviceId = () => {
-  if (typeof window === "undefined") return "device_123";
-  return window.localStorage.getItem("deviceId") || "device_123";
-};
-
-
 const token = getToken()
 
 export async function getHabits(): Promise<Habit[]> {
-  const deviceId = getDeviceId();
   const data = await fetch(`${ENDPOINTS.habits}/`, {
     method: `GET`,
     headers: {
@@ -103,12 +96,12 @@ export async function createHabit(input: {
   name: string;
   archetype: Archetype;
 }): Promise<Habit> {
-  const deviceId = getDeviceId();
   const payload = {
-    device_id: deviceId,
     habit_name: input.name,
     archetype: input.archetype,
   };
+  const token = getToken()
+
   const response = await fetch(ENDPOINTS.habits, {
     method: "POST",
 
@@ -136,10 +129,12 @@ export async function updateHabit(
     habit_name: input.name,
     archetype: input.archetype,
   }
+  const token = getToken()
+
   const response = await fetch(`${ENDPOINTS.habits}/${id}`, {
     method: "PATCH",
     headers: {
-      "Authentication": `Bearer ${token}`,
+      "Authorization": `Bearer ${token}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify(payload),
@@ -152,8 +147,14 @@ export async function updateHabit(
 }
 
 export async function deleteHabit(id: string): Promise<{ id: string }> {
+  const token = getToken()
+
   const response = await fetch(`${ENDPOINTS.habits}/${id}`, {
     method: "DELETE",
+    headers: {
+      "Authorization": `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
   });
   if (!response.ok) {
     throw new Error("Failed to delete habit");
@@ -174,6 +175,7 @@ export async function predict(metrics: CheckinMetrics): Promise<PredictionRespon
     interruptions: metrics.interruptions,
     medication: metrics.medication,
   };
+
   const response = await fetch(`${ENDPOINTS.predict}/`, {
     method: "POST",
     headers: {
@@ -199,6 +201,8 @@ export async function logOutcome(input: {
   const payload = {
     completed: input.completed,
   };
+  const token = getToken()
+
   const res = await fetch(`${ENDPOINTS.logOutcome}/${input.logId}`, {
     method: "PATCH",
     headers: {
@@ -217,7 +221,8 @@ export async function logOutcome(input: {
 }
 
 export async function getHistory(): Promise<HistoryEntry[]> {
-  const deviceId = getDeviceId();
+  const token = getToken()
+
   const data = await fetch(`${ENDPOINTS.history}/history/`, {
     method: 'GET',
     headers: {
@@ -232,7 +237,8 @@ export async function getHistory(): Promise<HistoryEntry[]> {
 }
 
 export async function getStats(): Promise<StatsResponse> {
-  const deviceId = getDeviceId();
+  const token = getToken()
+
   const response = await fetch(`${ENDPOINTS.stats}/`, {
     method: 'GET',
     headers: {
