@@ -11,6 +11,17 @@ _model_cache = {}
 def load_model(model_name: str):
     if model_name not in _model_cache:
         model_path = MODELS_DIR / f"{model_name}.pkl"
+
+        print("MODEL PATH:", model_path)
+        print("MODEL EXISTS:", model_path.exists())
+        print("MODELS DIR:", MODELS_DIR)
+        print("MODELS DIR EXISTS:", MODELS_DIR.exists())
+
+        if not model_path.exists():
+            raise FileNotFoundError(
+                f"Model not found: {model_path}"
+            )
+
         _model_cache[model_name] = joblib.load(model_path)
 
     return _model_cache[model_name]

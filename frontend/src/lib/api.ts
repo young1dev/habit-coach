@@ -18,7 +18,7 @@ import { getToken } from "./auth";
  * transport can be swapped for `fetch(`${API_BASE_URL}${path}`)` with no
  * changes to the UI or the React Query hooks.
  */
-export const API_BASE_URL = "https://habit-coach-api.onrender.com/api/v1";
+export const API_BASE_URL = import.meta.env.VITE_API_URL;
 export const ENDPOINTS = {
   register: `${API_BASE_URL}/auth/register`,
   login: `${API_BASE_URL}/auth/login`, 
