@@ -9,6 +9,7 @@ import {
   Target,
   TrendingUp,
 } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import { PageContainer } from "@/components/layout/PageContainer";
 import { SectionHeader } from "@/components/layout/SectionHeader";
@@ -17,7 +18,7 @@ import { PredictionGauge, RiskBadge } from "@/components/common/PredictionGauge"
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useHabits, useHistory, useStats } from "@/lib/queries";
-import { AUTH_KEY } from "@/lib/auth";
+import { AUTH_EVENT, AUTH_KEY } from "@/lib/auth";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -51,12 +52,18 @@ export function getUsername(): string | null {
   }
 }
 
-const username = getUsername()
-
 function DashboardPage() {
+  const [username, setUsername] = useState<string | null>(null);
   const habits = useHabits();
   const history = useHistory();
   const stats = useStats();
+
+  useEffect(() => {
+    const syncUsername = () => setUsername(getUsername());
+    syncUsername();
+    window.addEventListener(AUTH_EVENT, syncUsername);
+    return () => window.removeEventListener(AUTH_EVENT, syncUsername);
+  }, []);
 
   const activeHabit = habits.data?.[0];
   const latestHistoryEntry = history.data?.[0];

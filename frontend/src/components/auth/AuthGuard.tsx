@@ -1,6 +1,6 @@
 import { Navigate, useLocation } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
-import { getToken } from "@/lib/auth";
+import { AUTH_EVENT, clearAuth, isAuthenticated } from "@/lib/auth";
 
 export function AuthGuard({ children }: { children: ReactNode }) {
   const location = useLocation();
@@ -9,8 +9,22 @@ export function AuthGuard({ children }: { children: ReactNode }) {
   const [authenticated, setAuthenticated] = useState(false);
 
   useEffect(() => {
-    setAuthenticated(getToken() !== null);
-    setChecked(true);
+    const syncAuth = () => {
+      const valid = isAuthenticated();
+      if (!valid) {
+        clearAuth();
+      }
+
+      setAuthenticated(valid);
+      setChecked(true);
+    };
+
+    syncAuth();
+    window.addEventListener(AUTH_EVENT, syncAuth);
+
+    return () => {
+      window.removeEventListener(AUTH_EVENT, syncAuth);
+    };
   }, [location.pathname]);
 
   if (!checked) {

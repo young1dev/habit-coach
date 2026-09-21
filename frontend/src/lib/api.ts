@@ -8,20 +8,23 @@ import type {
   RegisterRequest,
   RegisterResponse,
   LoginRequest,
-  LoginResponse
+  LoginResponse,
 } from "./types";
 
-import { getToken } from "./auth";
+import { clearAuth, ensureValidAuth, getToken, logoutAndRedirect } from "./auth";
 
 /**
  * Mock API layer. Every function mirrors a future FastAPI endpoint so the
  * transport can be swapped for `fetch(`${API_BASE_URL}${path}`)` with no
  * changes to the UI or the React Query hooks.
  */
-export const API_BASE_URL = import.meta.env.VITE_API_URL;
+export const API_BASE_URL = (
+  import.meta.env.VITE_API_URL ?? "http://localhost:8000/api/v1"
+).replace(/\/+$/, "");
+
 export const ENDPOINTS = {
   register: `${API_BASE_URL}/auth/register`,
-  login: `${API_BASE_URL}/auth/login`, 
+  login: `${API_BASE_URL}/auth/login`,
   habits: `${API_BASE_URL}/habits`,
   predict: `${API_BASE_URL}/predict`,
   logOutcome: `${API_BASE_URL}/habitlogs`,
@@ -76,15 +79,22 @@ export async function loginUser(
   return response.json();
 }
 
-const token = getToken()
-
 export async function getHabits(): Promise<Habit[]> {
+  if (!ensureValidAuth()) {
+    throw new Error("Authentication expired");
+  }
+
   const data = await fetch(`${ENDPOINTS.habits}/`, {
-    method: `GET`,
+    method: "GET",
     headers: {
-      'Authorization': `Bearer ${token}`
-    }
+      Authorization: `Bearer ${getToken()}`,
+    },
   });
+
+  if (data.status === 401) {
+    logoutAndRedirect();
+    throw new Error("Your session has expired. Please log in again.");
+  }
 
   if (!data.ok) throw new Error("Failed to fetch habits");
 
@@ -96,21 +106,30 @@ export async function createHabit(input: {
   name: string;
   archetype: Archetype;
 }): Promise<Habit> {
+  if (!ensureValidAuth()) {
+    throw new Error("Authentication expired");
+  }
+
   const payload = {
     habit_name: input.name,
     archetype: input.archetype,
   };
-  const token = getToken()
+  const token = getToken();
 
   const response = await fetch(ENDPOINTS.habits, {
     method: "POST",
 
     headers: {
-      "Authorization": `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify(payload),
   });
+
+  if (response.status === 401) {
+    logoutAndRedirect();
+    throw new Error("Your session has expired. Please log in again.");
+  }
 
   if (!response.ok) {
     throw new Error("Failed to create habit");
@@ -124,21 +143,31 @@ export async function updateHabit(
   id: string,
   input: { name: string; archetype: Archetype },
 ): Promise<Habit> {
+  if (!ensureValidAuth()) {
+    throw new Error("Authentication expired");
+  }
+
   const payload = {
     habit_id: id,
     habit_name: input.name,
     archetype: input.archetype,
-  }
-  const token = getToken()
+  };
+  const token = getToken();
 
   const response = await fetch(`${ENDPOINTS.habits}/${id}`, {
     method: "PATCH",
     headers: {
-      "Authorization": `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify(payload),
   });
+
+  if (response.status === 401) {
+    logoutAndRedirect();
+    throw new Error("Your session has expired. Please log in again.");
+  }
+
   if (!response.ok) {
     throw new Error("Failed to update habit");
   }
@@ -147,15 +176,25 @@ export async function updateHabit(
 }
 
 export async function deleteHabit(id: string): Promise<{ id: string }> {
-  const token = getToken()
+  if (!ensureValidAuth()) {
+    throw new Error("Authentication expired");
+  }
+
+  const token = getToken();
 
   const response = await fetch(`${ENDPOINTS.habits}/${id}`, {
     method: "DELETE",
     headers: {
-      "Authorization": `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
   });
+
+  if (response.status === 401) {
+    logoutAndRedirect();
+    throw new Error("Your session has expired. Please log in again.");
+  }
+
   if (!response.ok) {
     throw new Error("Failed to delete habit");
   }
@@ -164,6 +203,10 @@ export async function deleteHabit(id: string): Promise<{ id: string }> {
 }
 
 export async function predict(metrics: CheckinMetrics): Promise<PredictionResponse> {
+  if (!ensureValidAuth()) {
+    throw new Error("Authentication expired");
+  }
+
   const payload = {
     habit_id: metrics.habitId,
     sleep_hours: metrics.sleepHours,
@@ -179,11 +222,16 @@ export async function predict(metrics: CheckinMetrics): Promise<PredictionRespon
   const response = await fetch(`${ENDPOINTS.predict}/`, {
     method: "POST",
     headers: {
-      "Authorization": `Bearer ${token}`,
+      Authorization: `Bearer ${getToken()}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify(payload),
   });
+
+  if (response.status === 401) {
+    logoutAndRedirect();
+    throw new Error("Your session has expired. Please log in again.");
+  }
 
   if (!response.ok) {
     throw new Error("Failed to generate prediction");
@@ -198,19 +246,28 @@ export async function logOutcome(input: {
   logId: string;
   completed: boolean;
 }): Promise<{ completed: boolean | null }> {
+  if (!ensureValidAuth()) {
+    throw new Error("Authentication expired");
+  }
+
   const payload = {
     completed: input.completed,
   };
-  const token = getToken()
+  const token = getToken();
 
   const res = await fetch(`${ENDPOINTS.logOutcome}/${input.logId}`, {
     method: "PATCH",
     headers: {
-      "Authorization": `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify(payload),
   });
+
+  if (res.status === 401) {
+    logoutAndRedirect();
+    throw new Error("Your session has expired. Please log in again.");
+  }
 
   if (!res.ok) {
     throw new Error("Failed to log outcome");
@@ -221,15 +278,24 @@ export async function logOutcome(input: {
 }
 
 export async function getHistory(): Promise<HistoryEntry[]> {
-  const token = getToken()
+  if (!ensureValidAuth()) {
+    throw new Error("Authentication expired");
+  }
+
+  const token = getToken();
 
   const data = await fetch(`${ENDPOINTS.history}/history/`, {
-    method: 'GET',
+    method: "GET",
     headers: {
-      "Authorization": `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
-    }
+    },
   });
+
+  if (data.status === 401) {
+    logoutAndRedirect();
+    throw new Error("Your session has expired. Please log in again.");
+  }
 
   if (!data.ok) throw new Error("Failed to fetch history");
   const history = await data.json();
@@ -237,15 +303,25 @@ export async function getHistory(): Promise<HistoryEntry[]> {
 }
 
 export async function getStats(): Promise<StatsResponse> {
-  const token = getToken()
+  if (!ensureValidAuth()) {
+    throw new Error("Authentication expired");
+  }
+
+  const token = getToken();
 
   const response = await fetch(`${ENDPOINTS.stats}/`, {
-    method: 'GET',
+    method: "GET",
     headers: {
-      "Authorization": `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
-    }
+    },
   });
+
+  if (response.status === 401) {
+    logoutAndRedirect();
+    throw new Error("Your session has expired. Please log in again.");
+  }
+
   if (!response.ok) {
     throw new Error("Failed to fetch stats");
   }
