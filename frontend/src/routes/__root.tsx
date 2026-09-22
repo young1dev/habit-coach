@@ -129,12 +129,13 @@ function RootComponent() {
   const location = useLocation();
 
   const isAuthPage = location.pathname === "/auth";
+  const isLandingPage = location.pathname === "/";
 
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <AuthGuard>
-          {isAuthPage ? (
+          {isAuthPage || isLandingPage ? (
             <Outlet />
           ) : (
             <AppShell>

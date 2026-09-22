@@ -31,12 +31,12 @@ export function AuthGuard({ children }: { children: ReactNode }) {
     return null;
   }
 
-  if (!authenticated && location.pathname !== "/auth") {
+  if (!authenticated && location.pathname !== "/auth" && location.pathname !== "/") {
     return <Navigate to="/auth" replace />;
   }
 
   if (authenticated && location.pathname === "/auth") {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   return children;

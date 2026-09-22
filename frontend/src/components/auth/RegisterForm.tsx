@@ -20,23 +20,18 @@ export function RegisterForm() {
             email,
             password,
         });
-
-        console.log({
-            username,
-            email,
-            password,
-        });
     }
 
     return (
-        <div className="rounded-2xl border bg-card p-8 shadow-sm">
-            <div className="mb-8">
-                <h1 className="text-3xl font-semibold tracking-tight">
-                    Create your account
+        <div className="rounded-[28px] border border-border bg-card/90 p-6 shadow-soft sm:p-7">
+            <div className="mb-7">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">Start fresh</p>
+                <h1 className="mt-3 text-3xl font-semibold tracking-tight text-foreground">
+                    Create account
                 </h1>
 
                 <p className="mt-2 text-sm text-muted-foreground">
-                    Start building better habits with Habit Coach.
+                    Build a stronger routine with smarter coaching.
                 </p>
             </div>
 
@@ -44,7 +39,7 @@ export function RegisterForm() {
                 <div className="space-y-2">
                     <label
                         htmlFor="register-username"
-                        className="text-sm font-medium"
+                        className="text-sm font-medium text-foreground"
                     >
                         Username
                     </label>
@@ -58,14 +53,14 @@ export function RegisterForm() {
                         placeholder="Choose a username"
                         autoComplete="username"
                         required
-                        className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm outline-none transition focus:ring-2 focus:ring-primary"
+                        className="w-full rounded-2xl border border-input bg-background px-3.5 py-2.75 text-sm text-foreground outline-none transition-all duration-200 placeholder:text-muted-foreground focus:border-primary focus:ring-4 focus:ring-primary/10"
                     />
                 </div>
 
                 <div className="space-y-2">
                     <label
                         htmlFor="register-email"
-                        className="text-sm font-medium"
+                        className="text-sm font-medium text-foreground"
                     >
                         Email
                     </label>
@@ -79,14 +74,14 @@ export function RegisterForm() {
                         placeholder="you@example.com"
                         autoComplete="email"
                         required
-                        className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm outline-none transition focus:ring-2 focus:ring-primary"
+                        className="w-full rounded-2xl border border-input bg-background px-3.5 py-2.75 text-sm text-foreground outline-none transition-all duration-200 placeholder:text-muted-foreground focus:border-primary focus:ring-4 focus:ring-primary/10"
                     />
                 </div>
 
                 <div className="space-y-2">
                     <label
                         htmlFor="register-password"
-                        className="text-sm font-medium"
+                        className="text-sm font-medium text-foreground"
                     >
                         Password
                     </label>
@@ -100,14 +95,14 @@ export function RegisterForm() {
                         placeholder="Create a password"
                         autoComplete="new-password"
                         required
-                        className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm outline-none transition focus:ring-2 focus:ring-primary"
+                        className="w-full rounded-2xl border border-input bg-background px-3.5 py-2.75 text-sm text-foreground outline-none transition-all duration-200 placeholder:text-muted-foreground focus:border-primary focus:ring-4 focus:ring-primary/10"
                     />
                 </div>
 
                 <div className="space-y-2">
                     <label
                         htmlFor="register-confirm-password"
-                        className="text-sm font-medium"
+                        className="text-sm font-medium text-foreground"
                     >
                         Confirm password
                     </label>
@@ -121,7 +116,7 @@ export function RegisterForm() {
                         placeholder="Repeat your password"
                         autoComplete="new-password"
                         required
-                        className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm outline-none transition focus:ring-2 focus:ring-primary"
+                        className="w-full rounded-2xl border border-input bg-background px-3.5 py-2.75 text-sm text-foreground outline-none transition-all duration-200 placeholder:text-muted-foreground focus:border-primary focus:ring-4 focus:ring-primary/10"
                     />
 
                     {confirmPassword && password !== confirmPassword && (
@@ -133,9 +128,10 @@ export function RegisterForm() {
 
                 <button
                     type="submit"
-                    className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition hover:opacity-90"
+                    disabled={registerMutation.isPending}
+                    className="w-full rounded-2xl bg-gradient-to-r from-primary to-violet-500 px-4 py-2.75 text-sm font-medium text-primary-foreground shadow-soft transition-all duration-200 hover:translate-y-[-1px] hover:shadow-lift disabled:cursor-not-allowed disabled:opacity-70"
                 >
-                    Create account
+                    {registerMutation.isPending ? "Creating account..." : "Create account"}
                 </button>
             </form>
         </div>

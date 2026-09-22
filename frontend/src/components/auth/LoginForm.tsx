@@ -17,14 +17,15 @@ export function LoginForm() {
     }
 
     return (
-        <div className="rounded-2xl border bg-card p-8 shadow-sm">
-            <div className="mb-8">
-                <h1 className="text-3xl font-semibold tracking-tight">
-                    Welcome back
+        <div className="rounded-[28px] border border-border bg-card/90 p-6 shadow-soft sm:p-7">
+            <div className="mb-7">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">Welcome back</p>
+                <h1 className="mt-3 text-3xl font-semibold tracking-tight text-foreground">
+                    Sign in
                 </h1>
 
                 <p className="mt-2 text-sm text-muted-foreground">
-                    Sign in to continue to Habit Coach.
+                    Your habit progress is waiting.
                 </p>
             </div>
 
@@ -32,7 +33,7 @@ export function LoginForm() {
                 <div className="space-y-2">
                     <label
                         htmlFor="login-username"
-                        className="text-sm font-medium"
+                        className="text-sm font-medium text-foreground"
                     >
                         Username
                     </label>
@@ -46,14 +47,14 @@ export function LoginForm() {
                         placeholder="Enter your username"
                         autoComplete="username"
                         required
-                        className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm outline-none transition focus:ring-2 focus:ring-primary"
+                        className="w-full rounded-2xl border border-input bg-background px-3.5 py-2.75 text-sm text-foreground outline-none transition-all duration-200 placeholder:text-muted-foreground focus:border-primary focus:ring-4 focus:ring-primary/10"
                     />
                 </div>
 
                 <div className="space-y-2">
                     <label
                         htmlFor="login-password"
-                        className="text-sm font-medium"
+                        className="text-sm font-medium text-foreground"
                     >
                         Password
                     </label>
@@ -67,15 +68,16 @@ export function LoginForm() {
                         placeholder="Enter your password"
                         autoComplete="current-password"
                         required
-                        className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm outline-none transition focus:ring-2 focus:ring-primary"
+                        className="w-full rounded-2xl border border-input bg-background px-3.5 py-2.75 text-sm text-foreground outline-none transition-all duration-200 placeholder:text-muted-foreground focus:border-primary focus:ring-4 focus:ring-primary/10"
                     />
                 </div>
 
                 <button
                     type="submit"
-                    className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition hover:opacity-90"
+                    disabled={loginMutation.isPending}
+                    className="w-full rounded-2xl bg-gradient-to-r from-primary to-violet-500 px-4 py-2.75 text-sm font-medium text-primary-foreground shadow-soft transition-all duration-200 hover:translate-y-[-1px] hover:shadow-lift disabled:cursor-not-allowed disabled:opacity-70"
                 >
-                    Sign in
+                    {loginMutation.isPending ? "Signing in..." : "Sign in"}
                 </button>
             </form>
         </div>
