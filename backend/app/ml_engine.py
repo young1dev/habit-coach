@@ -42,7 +42,7 @@ def _download_model_bytes(bucket_name: str, object_name: str) -> bytes:
 
 def _load_model_from_cloud(model_name: str):
     bucket_name = os.getenv("MODEL_BUCKET")
-    object_name = os.getenv("MODEL_OBJECT") or f"models/{model_name}.pkl"
+    object_name = os.getenv("MODEL_OBJECT") or f"{bucket_name}/{model_name}.pkl"
 
     if not bucket_name:
         raise RuntimeError("MODEL_BUCKET is not configured")
@@ -83,7 +83,7 @@ def prepare_features(features: dict):
     return df
 
 
-def predict(features: dict, model_name: str = "default"):
+def predict(features: dict, model_name: str = "default-model"):
 
     model = load_model(model_name)
 

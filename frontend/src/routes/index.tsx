@@ -87,7 +87,6 @@ function LandingPage() {
           </div>
 
           <div className="relative lg:justify-self-end">
-            <div className="absolute -inset-5 -z-10 rounded-[38px] bg-[radial-gradient(circle,_rgba(15,23,42,0.04),transparent_60%)] blur-3xl" />
             <div className="overflow-hidden rounded-[32px] border border-slate-200 bg-white p-3 shadow-[0_30px_80px_rgba(15,23,42,0.06)]">
               <div className="relative overflow-hidden rounded-[24px] border border-slate-200 bg-slate-950">
                 <div className="absolute inset-x-0 top-0 z-10 flex items-center justify-between border-b border-white/10 bg-slate-950/85 px-4 py-3 text-[10px] uppercase tracking-[0.22em] text-slate-300">

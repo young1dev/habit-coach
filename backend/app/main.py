@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from sqlalchemy import inspect
 from app.database import engine
 from app.models import Base
 from app.routes import habits, prediction, habitlog, stats, auth
@@ -28,4 +29,7 @@ app.include_router(habits.router)
 app.include_router(prediction.router)
 app.include_router(habitlog.router)
 app.include_router(stats.router)
-Base.metadata.create_all(bind=engine)
+
+existing_tables = inspect(engine).get_table_names()
+if not existing_tables:
+    Base.metadata.create_all(bind=engine)
