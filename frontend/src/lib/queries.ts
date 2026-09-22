@@ -41,9 +41,8 @@ export function useLogin() {
       queryClient.clear();
 
       saveAuth(data);
-      // console.log(data)
-      toast.success(`Welcome back! ${data.username}`)
-      navigate({ to: "/", replace: true });
+      toast.success(`Welcome back! ${data.username}`);
+      navigate({ to: "/dashboard", replace: true });
     },
 
     onError: (error) => {
