@@ -1,7 +1,4 @@
 from fastapi import FastAPI
-from sqlalchemy import inspect
-from app.database import engine
-from app.models import Base
 from app.routes import habits, prediction, habitlog, stats, auth
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -15,7 +12,7 @@ app.add_middleware(
         "http://127.0.0.1:5173",
         "http://localhost:5174",
         "http://127.0.0.1:5174",
-        "http://localhost:8081",
+        "http://localhost:8080",
         "http://127.0.0.1:8080",
         "http://localhost:3000",
         "http://127.0.0.1:3000",
@@ -29,7 +26,3 @@ app.include_router(habits.router)
 app.include_router(prediction.router)
 app.include_router(habitlog.router)
 app.include_router(stats.router)
-
-existing_tables = inspect(engine).get_table_names()
-if not existing_tables:
-    Base.metadata.create_all(bind=engine)
