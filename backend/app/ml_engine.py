@@ -89,7 +89,7 @@ def predict(features: dict, model_name: str = "default-model"):
 
     X = prepare_features(features)
     THRESHOLD = 0.65
-    probability = model.predict_proba(X)[0][1]
+    probability = float(model.predict_proba(X)[0][1])
     prediction = int(probability >= THRESHOLD)
     return {
         "probability": probability,
