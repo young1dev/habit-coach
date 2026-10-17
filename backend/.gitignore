@@ -12,7 +12,7 @@ __pycache__/
 *.db
 *.sqlite
 *.sqlite3
-
+test/
 # Database
 data/*.db
 
