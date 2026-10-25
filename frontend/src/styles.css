@@ -194,7 +194,7 @@
 }
 
 .dark .card-surface {
-  background: linear-gradient(180deg, rgba(23,24,38,0.9), rgba(18,19,27,0.98));
+  background: var(--color-background);
 }
 
 @utility glass-panel {

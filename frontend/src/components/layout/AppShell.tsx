@@ -29,13 +29,13 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen w-full bg-background">
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-72 flex-col border-r border-sidebar-border bg-sidebar/80 px-4 py-6 backdrop-blur-xl lg:flex">
-        <div className="glass-panel rounded-[28px] p-3">
+        <div className=" p-3  border-b-2">
           <Link to="/dashboard" className="flex items-center gap-3 px-2">
-            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-primary to-violet-500 text-primary-foreground shadow-lift">
+            {/* <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-primary  text-primary-foreground shadow-lift">
               <Sparkles className="h-4 w-4" />
-            </span>
+            </span> */}
             <span className="min-w-0">
-              <span className="block font-display text-sm font-bold leading-tight">ZICO</span>
+              <span className="block font-display text-lg font-bold leading-tight">ZICO</span>
               <span className="block text-[11px] text-muted-foreground">Habit Intelligence</span>
             </span>
           </Link>
@@ -49,7 +49,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               className={cn(
                 "flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
                 isActive(item.to)
-                  ? "bg-gradient-to-r from-primary-soft to-violet-100 text-primary shadow-soft"
+                  ? "bg-primary-soft text-primary shadow-soft"
                   : "text-muted-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-foreground",
               )}
             >
@@ -76,10 +76,10 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="lg:pl-72">
         <header className="sticky top-0 z-20 border-b border-border bg-background/70 backdrop-blur-xl lg:hidden">
           <div className="flex items-center gap-2.5 px-4 py-3">
-            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-primary to-violet-500 text-primary-foreground shadow-soft">
+            {/* <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-primary  text-primary-foreground shadow-soft">
               <Sparkles className="h-4 w-4" />
-            </span>
-            <span className="min-w-0 truncate font-display text-sm font-bold">
+            </span> */}
+            <span className="min-w-0 truncate font-display text-lg font-bold">
               ZICO
             </span>
           </div>

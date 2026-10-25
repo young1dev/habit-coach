@@ -23,7 +23,7 @@ import { ProgressRing } from "@/components/common/ProgressRing";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useStats } from "@/lib/queries";
 
-export const Route = createFileRoute("/statistics")({
+export const Route = createFileRoute("/_app/statistics")({
   head: () => ({
     meta: [
       { title: "Statistics — ZICO Habit Intelligence" },
@@ -106,7 +106,7 @@ function StatisticsPage() {
         />
         <StatCard
           label="Average workload"
-          value={`${s.averageWorkload}h`}
+          value={`${s.averageWorkload.toFixed(2)}h`}
           icon={Briefcase}
           delay={0.15}
         />

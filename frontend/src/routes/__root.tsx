@@ -7,14 +7,13 @@ import {
   HeadContent,
   Scripts,
   Link,
+  type ErrorComponentProps,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import { AppShell } from "@/components/layout/AppShell";
 import { ThemeProvider } from "@/lib/theme";
 import { Toaster } from "@/components/ui/sonner";
-import { AuthGuard } from "@/components/auth/AuthGuard";
 
 function NotFoundComponent() {
   return (
@@ -38,7 +37,7 @@ function NotFoundComponent() {
   );
 }
 
-function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
+function ErrorComponent({ error, reset }: ErrorComponentProps) {
   console.error(error);
   const router = useRouter();
 
@@ -126,24 +125,11 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  const location = useLocation();
-
-  const isAuthPage = location.pathname === "/auth";
-  const isLandingPage = location.pathname === "/";
 
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <AuthGuard>
-          {isAuthPage || isLandingPage ? (
-            <Outlet />
-          ) : (
-            <AppShell>
-              <Outlet />
-            </AppShell>
-          )}
-        </AuthGuard>
-
+        <Outlet />
         <Toaster position="top-right" />
       </ThemeProvider>
     </QueryClientProvider>

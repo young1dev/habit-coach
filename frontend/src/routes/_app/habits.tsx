@@ -13,7 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useCreateHabit, useDeleteHabit, useHabits, useUpdateHabit } from "@/lib/queries";
 import type { Habit } from "@/lib/types";
 
-export const Route = createFileRoute("/habits")({
+export const Route = createFileRoute("/_app/habits")({
   head: () => ({
     meta: [
       { title: "Habits — ZICO Habit Intelligence" },

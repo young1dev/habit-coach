@@ -26,7 +26,7 @@ import {
 import { useHabits, useHistory, useLogOutcome } from "@/lib/queries";
 import { ConfirmationDialog } from "@/components/common/ConfirmationDialog";
 
-export const Route = createFileRoute("/history")({
+export const Route = createFileRoute("/_app/history")({
   head: () => ({
     meta: [
       { title: "History — ZICO Habit Intelligence" },

@@ -18,17 +18,6 @@ export function LoginForm() {
 
     return (
         <div className="rounded-[28px] border border-border bg-card/90 p-6 shadow-soft sm:p-7">
-            <div className="mb-7">
-                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">Welcome back</p>
-                <h1 className="mt-3 text-3xl font-semibold tracking-tight text-foreground">
-                    Sign in
-                </h1>
-
-                <p className="mt-2 text-sm text-muted-foreground">
-                    Your habit progress is waiting.
-                </p>
-            </div>
-
             <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="space-y-2">
                     <label

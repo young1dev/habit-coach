@@ -20,7 +20,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useHabits, useHistory, useStats } from "@/lib/queries";
 import { AUTH_EVENT, AUTH_KEY } from "@/lib/auth";
 
-export const Route = createFileRoute("/dashboard")({
+export const Route = createFileRoute("/_app/dashboard")({
     head: () => ({
         meta: [
             { title: "Dashboard — Habit Coach" },
@@ -73,7 +73,6 @@ function DashboardPage() {
     return (
         <PageContainer>
             <SectionHeader
-                eyebrow="Good to see you"
                 title={`Welcome back, ${username}`}
                 description="Your habit intelligence for today, built from sleep, workload, mood and momentum."
                 action={

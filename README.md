@@ -4,14 +4,15 @@ Habit Coach is a project I started as a way to practise machine learning after l
 
 The idea is to use information about a user's daily routine and previous records to predict the likelihood of completing a habit.
 
+![Habit Coach Dashboard](frontend/public/ui-preview2.png)
 ## What it does
 
 - Predicts the likelihood of completing a habit using a trained machine learning model.
-- Takes daily context and previous habit records into account.
-- Stores habit information and prediction records in a PostgreSQL database.
+- Takes daily context and previous habit records into account to make predictions.
+- Stores habit information and prediction records in a database.
 - Uses an AI coaching component to provide guidance based on prediction results and habit context.
 
-The project is still being developed. The current model is a default model trained on synthetic data, so its predictions are not yet as accurate as I want them to be. One of my next goals is to collect real-world data, evaluate the model properly, and improve it.
+The project is still being developed. The current model is a default model trained on synthetic data, so its predictions are not yet as accurate as I want them to be. One of my next goals is to collect real-world data, evaluate the model properly, and improve it, then configure it for auto retraining itself with polished/filtered data about the user.
 
 ## Tech Stack
 
@@ -30,7 +31,7 @@ The project is still being developed. The current model is a default model train
 ## How it works
 
 1. A user logs in and selects a habit.
-2. The user provides information about their daily routine.
+2. The user provides information about their daily routine through the preconfigured features.
 3. The backend retrieves relevant historical information, including the habit's current streak and previous-day completion.
 4. The prediction engine prepares the features and passes them to the trained model.
 5. The model returns a completion probability, which is used to produce a binary prediction.
@@ -75,7 +76,7 @@ python -m venv .venv
 
 Activate the virtual environment.
 
-On Windows PowerShell:
+On Windows PowerShell/terminal (CTRL + J in vscode):
 
 ```powershell
 .\.venv\Scripts\Activate.ps1
@@ -168,17 +169,15 @@ Habit Coach uses PostgreSQL to store users, habits, habit logs, and prediction l
 
 The trained model is stored in Supabase Storage and loaded by the backend. The application also caches the loaded model to avoid repeatedly downloading it during normal operation.
 
-Historical habit logs allow the application to retain past observations rather than storing only a current streak value. This also provides a foundation for future analysis of habit completion patterns.
-
 ## Current Limitations and Future Work
 
-The current model is a starting point rather than a fully validated predictor of real-world behavior. It was trained using synthetic data, and its performance needs to be evaluated against actual habit outcomes.
+The current model is a mini version of the big idea rather than a fully validated predictor of real-world behavior.
 
 Planned improvements include:
 
 - Collecting real-world habit data from beta users.
 - Analyzing the data with pandas and other data-analysis tools.
-- Evaluating model performance on data that was not used for training.
+- Evaluating model performance
 - Using evaluation results to identify weaknesses in the model and guide future improvements.
 - Exploring additional features that could help improve habit completion predictions.
 - Adding more useful habit statistics and visualizations.

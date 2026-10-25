@@ -25,14 +25,9 @@ export function RegisterForm() {
     return (
         <div className="rounded-[28px] border border-border bg-card/90 p-6 shadow-soft sm:p-7">
             <div className="mb-7">
-                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">Start fresh</p>
                 <h1 className="mt-3 text-3xl font-semibold tracking-tight text-foreground">
                     Create account
                 </h1>
-
-                <p className="mt-2 text-sm text-muted-foreground">
-                    Build a stronger routine with smarter coaching.
-                </p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-5">
@@ -129,7 +124,7 @@ export function RegisterForm() {
                 <button
                     type="submit"
                     disabled={registerMutation.isPending}
-                    className="w-full rounded-2xl bg-gradient-to-r from-primary to-violet-500 px-4 py-2.75 text-sm font-medium text-primary-foreground shadow-soft transition-all duration-200 hover:translate-y-[-1px] hover:shadow-lift disabled:cursor-not-allowed disabled:opacity-70"
+                    className="w-full rounded-2xl bg-primary px-4 py-2.75 text-sm font-medium text-primary-foreground shadow-soft transition-all duration-200 hover:translate-y-[-1px] hover:shadow-lift disabled:cursor-not-allowed disabled:opacity-70"
                 >
                     {registerMutation.isPending ? "Creating account..." : "Create account"}
                 </button>

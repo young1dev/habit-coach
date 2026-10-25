@@ -8,6 +8,9 @@ export function AuthGuard({ children }: { children: ReactNode }) {
   const [checked, setChecked] = useState(false);
   const [authenticated, setAuthenticated] = useState(false);
 
+  const publicPaths = ["/", "/auth/login", "/auth/register"];
+  const isPublicPath = publicPaths.includes(location.pathname);
+
   useEffect(() => {
     const syncAuth = () => {
       const valid = isAuthenticated();
@@ -31,11 +34,11 @@ export function AuthGuard({ children }: { children: ReactNode }) {
     return null;
   }
 
-  if (!authenticated && location.pathname !== "/auth" && location.pathname !== "/") {
-    return <Navigate to="/auth" replace />;
+  if (!authenticated && !isPublicPath) {
+    return <Navigate to="/auth/login" replace />;
   }
 
-  if (authenticated && (location.pathname === "/auth" || location.pathname === "/")) {
+  if (authenticated && (location.pathname === "/auth/login" || location.pathname === "/")) {
     return <Navigate to="/dashboard" replace />;
   }
 

@@ -39,9 +39,11 @@ import {
 import { useHabits, useLogOutcome, usePredict } from "@/lib/queries";
 import type { CheckinMetrics } from "@/lib/types";
 
-export const Route = createFileRoute("/checkin")({
+export const Route = createFileRoute("/_app/checkin")({
   validateSearch: (search: Record<string, unknown>) => ({
-    habit: typeof search["habit"] === "string" ? (search["habit"] as string) : "",
+    ...(typeof search["habit"] === "string"
+      ? { habit: search["habit"] }
+      : {}),
   }),
   head: () => ({
     meta: [
@@ -78,14 +80,8 @@ function CheckinPage() {
   const predict = usePredict();
   const logOutcome = useLogOutcome();
 
-  const [habitId, setHabitId] = useState<string>(habitParam);
+  const [habitId, setHabitId] = useState<string>(habitParam ?? "");
   const [metrics, setMetrics] = useState(DEFAULTS);
-
-  useEffect(() => {
-    if (habitParam) {
-      setHabitId(habitParam);
-    }
-  }, [habitParam]);
 
   useEffect(() => {
     if (habitParam) {

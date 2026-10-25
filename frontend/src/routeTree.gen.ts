@@ -10,128 +10,143 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthRouteImport } from './routes/auth'
-import { Route as CheckinRouteImport } from './routes/checkin'
-import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as HabitsRouteImport } from './routes/habits'
-import { Route as HistoryRouteImport } from './routes/history'
-import { Route as SettingsRouteImport } from './routes/settings'
-import { Route as StatisticsRouteImport } from './routes/statistics'
+import { Route as AppRouteRouteImport } from './routes/_app/route'
+import { Route as AppCheckinRouteImport } from './routes/_app/checkin'
+import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
+import { Route as AppHabitsRouteImport } from './routes/_app/habits'
+import { Route as AppHistoryRouteImport } from './routes/_app/history'
+import { Route as AppSettingsRouteImport } from './routes/_app/settings'
+import { Route as AppStatisticsRouteImport } from './routes/_app/statistics'
+import { Route as AuthLoginRouteImport } from './routes/auth/login'
+import { Route as AuthRegisterRouteImport } from './routes/auth/register'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
+const AppRouteRoute = AppRouteRouteImport.update({
+  id: '/_app',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CheckinRoute = CheckinRouteImport.update({
+const AppCheckinRoute = AppCheckinRouteImport.update({
   id: '/checkin',
   path: '/checkin',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AppRouteRoute,
 } as any)
-const DashboardRoute = DashboardRouteImport.update({
+const AppDashboardRoute = AppDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AppRouteRoute,
 } as any)
-const HabitsRoute = HabitsRouteImport.update({
+const AppHabitsRoute = AppHabitsRouteImport.update({
   id: '/habits',
   path: '/habits',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AppRouteRoute,
 } as any)
-const HistoryRoute = HistoryRouteImport.update({
+const AppHistoryRoute = AppHistoryRouteImport.update({
   id: '/history',
   path: '/history',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AppRouteRoute,
 } as any)
-const SettingsRoute = SettingsRouteImport.update({
+const AppSettingsRoute = AppSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AppRouteRoute,
 } as any)
-const StatisticsRoute = StatisticsRouteImport.update({
+const AppStatisticsRoute = AppStatisticsRouteImport.update({
   id: '/statistics',
   path: '/statistics',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AuthLoginRoute = AuthLoginRouteImport.update({
+  id: '/auth/login',
+  path: '/auth/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRegisterRoute = AuthRegisterRouteImport.update({
+  id: '/auth/register',
+  path: '/auth/register',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/auth': typeof AuthRoute
-  '/checkin': typeof CheckinRoute
-  '/dashboard': typeof DashboardRoute
-  '/habits': typeof HabitsRoute
-  '/history': typeof HistoryRoute
-  '/settings': typeof SettingsRoute
-  '/statistics': typeof StatisticsRoute
+  '/checkin': typeof AppCheckinRoute
+  '/dashboard': typeof AppDashboardRoute
+  '/habits': typeof AppHabitsRoute
+  '/history': typeof AppHistoryRoute
+  '/settings': typeof AppSettingsRoute
+  '/statistics': typeof AppStatisticsRoute
+  '/auth/login': typeof AuthLoginRoute
+  '/auth/register': typeof AuthRegisterRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/auth': typeof AuthRoute
-  '/checkin': typeof CheckinRoute
-  '/dashboard': typeof DashboardRoute
-  '/habits': typeof HabitsRoute
-  '/history': typeof HistoryRoute
-  '/settings': typeof SettingsRoute
-  '/statistics': typeof StatisticsRoute
+  '/checkin': typeof AppCheckinRoute
+  '/dashboard': typeof AppDashboardRoute
+  '/habits': typeof AppHabitsRoute
+  '/history': typeof AppHistoryRoute
+  '/settings': typeof AppSettingsRoute
+  '/statistics': typeof AppStatisticsRoute
+  '/auth/login': typeof AuthLoginRoute
+  '/auth/register': typeof AuthRegisterRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/auth': typeof AuthRoute
-  '/checkin': typeof CheckinRoute
-  '/dashboard': typeof DashboardRoute
-  '/habits': typeof HabitsRoute
-  '/history': typeof HistoryRoute
-  '/settings': typeof SettingsRoute
-  '/statistics': typeof StatisticsRoute
+  '/_app': typeof AppRouteRouteWithChildren
+  '/_app/checkin': typeof AppCheckinRoute
+  '/_app/dashboard': typeof AppDashboardRoute
+  '/_app/habits': typeof AppHabitsRoute
+  '/_app/history': typeof AppHistoryRoute
+  '/_app/settings': typeof AppSettingsRoute
+  '/_app/statistics': typeof AppStatisticsRoute
+  '/auth/login': typeof AuthLoginRoute
+  '/auth/register': typeof AuthRegisterRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/auth'
     | '/checkin'
     | '/dashboard'
     | '/habits'
     | '/history'
     | '/settings'
     | '/statistics'
+    | '/auth/login'
+    | '/auth/register'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/auth'
     | '/checkin'
     | '/dashboard'
     | '/habits'
     | '/history'
     | '/settings'
     | '/statistics'
+    | '/auth/login'
+    | '/auth/register'
   id:
     | '__root__'
     | '/'
-    | '/auth'
-    | '/checkin'
-    | '/dashboard'
-    | '/habits'
-    | '/history'
-    | '/settings'
-    | '/statistics'
+    | '/_app'
+    | '/_app/checkin'
+    | '/_app/dashboard'
+    | '/_app/habits'
+    | '/_app/history'
+    | '/_app/settings'
+    | '/_app/statistics'
+    | '/auth/login'
+    | '/auth/register'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AuthRoute: typeof AuthRoute
-  CheckinRoute: typeof CheckinRoute
-  DashboardRoute: typeof DashboardRoute
-  HabitsRoute: typeof HabitsRoute
-  HistoryRoute: typeof HistoryRoute
-  SettingsRoute: typeof SettingsRoute
-  StatisticsRoute: typeof StatisticsRoute
+  AppRouteRoute: typeof AppRouteRouteWithChildren
+  AuthLoginRoute: typeof AuthLoginRoute
+  AuthRegisterRoute: typeof AuthRegisterRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -143,67 +158,99 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
+    '/_app': {
+      id: '/_app'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AppRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/checkin': {
-      id: '/checkin'
+    '/_app/checkin': {
+      id: '/_app/checkin'
       path: '/checkin'
       fullPath: '/checkin'
-      preLoaderRoute: typeof CheckinRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AppCheckinRouteImport
+      parentRoute: typeof AppRouteRoute
     }
-    '/dashboard': {
-      id: '/dashboard'
+    '/_app/dashboard': {
+      id: '/_app/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AppDashboardRouteImport
+      parentRoute: typeof AppRouteRoute
     }
-    '/habits': {
-      id: '/habits'
+    '/_app/habits': {
+      id: '/_app/habits'
       path: '/habits'
       fullPath: '/habits'
-      preLoaderRoute: typeof HabitsRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AppHabitsRouteImport
+      parentRoute: typeof AppRouteRoute
     }
-    '/history': {
-      id: '/history'
+    '/_app/history': {
+      id: '/_app/history'
       path: '/history'
       fullPath: '/history'
-      preLoaderRoute: typeof HistoryRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AppHistoryRouteImport
+      parentRoute: typeof AppRouteRoute
     }
-    '/settings': {
-      id: '/settings'
+    '/_app/settings': {
+      id: '/_app/settings'
       path: '/settings'
       fullPath: '/settings'
-      preLoaderRoute: typeof SettingsRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AppSettingsRouteImport
+      parentRoute: typeof AppRouteRoute
     }
-    '/statistics': {
-      id: '/statistics'
+    '/_app/statistics': {
+      id: '/_app/statistics'
       path: '/statistics'
       fullPath: '/statistics'
-      preLoaderRoute: typeof StatisticsRouteImport
+      preLoaderRoute: typeof AppStatisticsRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/auth/login': {
+      id: '/auth/login'
+      path: '/auth/login'
+      fullPath: '/auth/login'
+      preLoaderRoute: typeof AuthLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/register': {
+      id: '/auth/register'
+      path: '/auth/register'
+      fullPath: '/auth/register'
+      preLoaderRoute: typeof AuthRegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
 }
 
+interface AppRouteRouteChildren {
+  AppCheckinRoute: typeof AppCheckinRoute
+  AppDashboardRoute: typeof AppDashboardRoute
+  AppHabitsRoute: typeof AppHabitsRoute
+  AppHistoryRoute: typeof AppHistoryRoute
+  AppSettingsRoute: typeof AppSettingsRoute
+  AppStatisticsRoute: typeof AppStatisticsRoute
+}
+
+const AppRouteRouteChildren: AppRouteRouteChildren = {
+  AppCheckinRoute: AppCheckinRoute,
+  AppDashboardRoute: AppDashboardRoute,
+  AppHabitsRoute: AppHabitsRoute,
+  AppHistoryRoute: AppHistoryRoute,
+  AppSettingsRoute: AppSettingsRoute,
+  AppStatisticsRoute: AppStatisticsRoute,
+}
+
+const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
+  AppRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AuthRoute: AuthRoute,
-  CheckinRoute: CheckinRoute,
-  DashboardRoute: DashboardRoute,
-  HabitsRoute: HabitsRoute,
-  HistoryRoute: HistoryRoute,
-  SettingsRoute: SettingsRoute,
-  StatisticsRoute: StatisticsRoute,
+  AppRouteRoute: AppRouteRouteWithChildren,
+  AuthLoginRoute: AuthLoginRoute,
+  AuthRegisterRoute: AuthRegisterRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

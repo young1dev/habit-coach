@@ -49,7 +49,7 @@ export function clearAuth() {
 export function logoutAndRedirect() {
   clearAuth();
   if (typeof window !== "undefined") {
-    window.location.assign("/auth");
+    window.location.assign("/auth/login");
   }
 }
 

@@ -13,7 +13,7 @@ import { clearAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 
-export const Route = createFileRoute("/settings")({
+export const Route = createFileRoute("/_app/settings")({
   head: () => ({
     meta: [
       { title: "Settings — ZICO Habit Intelligence" },
@@ -61,7 +61,7 @@ function SettingsPage() {
 const handleLogout = () => {
   clearAuth();
   queryClient.clear();
-  navigate({ to: "/auth", replace: true });
+  navigate({ to: "/auth/login", replace: true });
 };
   const navigate = useNavigate();
   const { mode, setMode } = useTheme();
@@ -168,7 +168,7 @@ const handleLogout = () => {
         onClick={() => {
           clearAuth();
           queryClient.clear();
-          navigate({ to: "/auth", replace: true });
+          handleLogout();
         }}
       >
         Log Out
